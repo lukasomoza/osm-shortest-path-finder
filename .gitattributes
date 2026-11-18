@@ -16,3 +16,7 @@
 *.ico binary
 
 *.osm.xml -text
+
+# Bundled Xerces-C: exclude from language stats
+third-party/** linguist-vendored
+maps/** linguist-generated
