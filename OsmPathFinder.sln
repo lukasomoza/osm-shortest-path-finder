@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.11.35327.3
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LP-OSM-WPF-2022", "LP-OSM-WPF-2022\LP-OSM-WPF-2022.csproj", "{608A8812-ED51-4BC7-803F-BD22C9D9BCB9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OsmPathFinder", "OsmPathFinder\OsmPathFinder.csproj", "{608A8812-ED51-4BC7-803F-BD22C9D9BCB9}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LP-OSM-DLL-2022", "LP-OSM-DLL-2022\LP-OSM-DLL-2022.vcxproj", "{86327DF7-0D38-41A6-992E-BE1E015DF1B1}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OsmEngine", "OsmEngine\OsmEngine.vcxproj", "{86327DF7-0D38-41A6-992E-BE1E015DF1B1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

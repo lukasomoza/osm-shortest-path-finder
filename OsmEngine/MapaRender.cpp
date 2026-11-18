@@ -110,6 +110,8 @@ PuntDeInteresBase * MapaRender::getPoiByIdx(int idx) {
 std::vector<Coordinate> MapaRender::shortestPath(PuntDeInteresBase* from, PuntDeInteresBase* to)
 {
     CamiBase* way = m_mapaBase->buscaCamiMesCurt(from, to);
+    if (way == nullptr)
+        return {};  // no route between the two points
     return way->getCamiCoords();
 }
 

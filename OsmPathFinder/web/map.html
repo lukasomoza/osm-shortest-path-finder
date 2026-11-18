@@ -1,0 +1,78 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>OSM map</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <style>
+    html, body, #map { height: 100%; margin: 0; background: #e5e7eb; }
+    .leaflet-tile-pane { filter: saturate(0.55) brightness(1.04); }
+    .leaflet-tooltip { font: 12px "Segoe UI", sans-serif; }
+    .badge { font: 600 12px "Segoe UI", sans-serif; color: #fff; background: #0f172a; padding: 3px 7px; border-radius: 6px; white-space: nowrap; }
+  </style>
+</head>
+<body>
+<div id="map"></div>
+<script>
+  const map = L.map('map', { preferCanvas: true, zoomControl: true }).setView([41.45, 2.12], 11);
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+  }).addTo(map);
+
+  const roads = L.layerGroup().addTo(map);
+  const pois = L.layerGroup().addTo(map);
+  const route = L.layerGroup().addTo(map);
+  let bounds = null;
+
+  const hex = c => '#' + (c >>> 0 & 0xFFFFFF).toString(16).padStart(6, '0');
+
+  window.osm = {
+    reset() { roads.clearLayers(); pois.clearLayers(); route.clearLayers(); bounds = null; },
+
+    setRoads(list) {
+      roads.clearLayers();
+      for (const pts of list) {
+        if (pts.length < 2) continue;
+        L.polyline(pts, { color: '#475569', weight: 3, opacity: 0.75 }).addTo(roads);
+        for (const p of pts) bounds = bounds ? bounds.extend(p) : L.latLngBounds(p, p);
+      }
+    },
+
+    setPois(list) {
+      pois.clearLayers();
+      for (const p of list) {
+        L.circleMarker([p.lat, p.lon], { radius: 6, color: '#0f172a', weight: 1.5, fillColor: hex(p.color), fillOpacity: 1 })
+          .bindTooltip(p.title, { direction: 'top', offset: [0, -6] })
+          .addTo(pois);
+        bounds = bounds ? bounds.extend([p.lat, p.lon]) : L.latLngBounds([p.lat, p.lon], [p.lat, p.lon]);
+      }
+    },
+
+    setRoute(pts, fromName, toName) {
+      route.clearLayers();
+      if (!pts || pts.length < 2) return;
+      L.polyline(pts, { color: '#ffffff', weight: 10, opacity: 0.9 }).addTo(route);
+      L.polyline(pts, { color: '#ef4444', weight: 6, opacity: 1 }).addTo(route);
+      const mk = (p, txt, col) => L.marker(p, {
+        icon: L.divIcon({ className: '', html: `<span class="badge" style="background:${col}">${txt}</span>`, iconAnchor: [-6, 24] })
+      }).addTo(route);
+      L.circleMarker(pts[0], { radius: 7, color: '#fff', weight: 2, fillColor: '#16a34a', fillOpacity: 1 }).addTo(route);
+      L.circleMarker(pts[pts.length - 1], { radius: 7, color: '#fff', weight: 2, fillColor: '#dc2626', fillOpacity: 1 }).addTo(route);
+      if (fromName) mk(pts[0], fromName, '#16a34a');
+      if (toName) mk(pts[pts.length - 1], toName, '#dc2626');
+      map.fitBounds(L.latLngBounds(pts), { padding: [80, 80] });
+    },
+
+    show(layer, visible) {
+      const l = { roads, pois, route }[layer];
+      if (visible) { if (!map.hasLayer(l)) l.addTo(map); } else { map.removeLayer(l); }
+    },
+
+    fit() { if (bounds) map.fitBounds(bounds, { padding: [20, 20] }); }
+  };
+</script>
+</body>
+</html>

@@ -1,0 +1,122 @@
+﻿<Window x:Class="LS_OSM_2223_WPF.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
+        mc:Ignorable="d"
+        Title="OSM Shortest Path Finder" Height="760" Width="1240" MinHeight="560" MinWidth="900"
+        Background="#0F172A" FontFamily="Segoe UI">
+
+    <Window.Resources>
+        <SolidColorBrush x:Key="Panel" Color="#1E293B"/>
+        <SolidColorBrush x:Key="PanelBorder" Color="#334155"/>
+        <SolidColorBrush x:Key="TextMain" Color="#F1F5F9"/>
+        <SolidColorBrush x:Key="TextMuted" Color="#94A3B8"/>
+        <SolidColorBrush x:Key="Accent" Color="#3B82F6"/>
+        <SolidColorBrush x:Key="AccentHover" Color="#2563EB"/>
+
+        <Style x:Key="BaseButton" TargetType="Button">
+            <Setter Property="Foreground" Value="{StaticResource TextMain}"/>
+            <Setter Property="Background" Value="#334155"/>
+            <Setter Property="Height" Value="38"/>
+            <Setter Property="Margin" Value="0,0,0,8"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd" Background="{TemplateBinding Background}" CornerRadius="8" Padding="12,0">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Opacity" Value="0.85"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="bd" Property="Opacity" Value="0.4"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="PrimaryButton" TargetType="Button" BasedOn="{StaticResource BaseButton}">
+            <Setter Property="Background" Value="{StaticResource Accent}"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+        <Style x:Key="SectionLabel" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource TextMuted}"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Margin" Value="0,14,0,6"/>
+        </Style>
+        <Style TargetType="ComboBox">
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="Margin" Value="0,0,0,8"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="300"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Sidebar -->
+        <Border Grid.Column="0" Background="{StaticResource Panel}" BorderBrush="{StaticResource PanelBorder}" BorderThickness="0,0,1,0">
+            <DockPanel Margin="20,22,20,20" LastChildFill="True">
+                <StackPanel DockPanel.Dock="Top">
+                    <TextBlock Text="OSM Path Finder" Foreground="{StaticResource TextMain}" FontSize="22" FontWeight="Bold"/>
+                    <TextBlock Text="C++ graph engine · Dijkstra · Ball Tree" Foreground="{StaticResource TextMuted}" FontSize="12" Margin="0,4,0,18"/>
+
+                    <Button x:Name="btnOpen" Content="📂  Open OSM map…" Style="{StaticResource PrimaryButton}" Click="MenuItem_Click"/>
+
+                    <TextBlock Text="ROUTE" Style="{StaticResource SectionLabel}"/>
+                    <TextBlock Text="From" Foreground="{StaticResource TextMain}" FontSize="12" Margin="0,0,0,4"/>
+                    <ComboBox x:Name="cmbFromPois" IsEditable="False"/>
+                    <TextBlock Text="To" Foreground="{StaticResource TextMain}" FontSize="12" Margin="0,0,0,4"/>
+                    <ComboBox x:Name="cmbToPois" IsEditable="False"/>
+                    <Button x:Name="btnRoute" Content="Find shortest path" Style="{StaticResource PrimaryButton}" Click="ShortestPath_Click" IsEnabled="False"/>
+
+                    <TextBlock Text="LAYERS" Style="{StaticResource SectionLabel}"/>
+                    <UniformGrid Columns="2">
+                        <Button x:Name="btnWays" Content="Roads" Style="{StaticResource BaseButton}" Margin="0,0,4,8" Click="VisualitzaCamins_Click" IsEnabled="False"/>
+                        <Button x:Name="btnPois" Content="Points of interest" Style="{StaticResource BaseButton}" Margin="4,0,0,8" Click="VisualitzaPdis_Click" IsEnabled="False"/>
+                    </UniformGrid>
+                    <Button Content="Clear map" Style="{StaticResource BaseButton}" Click="Clear_Click"/>
+
+                    <TextBlock Text="LEGEND" Style="{StaticResource SectionLabel}"/>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                        <Rectangle Width="18" Height="4" Fill="#64748B" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <TextBlock Text="Road network" Foreground="{StaticResource TextMuted}" FontSize="12"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                        <Rectangle Width="18" Height="5" Fill="#EF4444" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <TextBlock Text="Shortest path" Foreground="{StaticResource TextMuted}" FontSize="12"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                        <Rectangle Width="5" Height="9" Fill="#DFFF00"/>
+                        <Rectangle Width="5" Height="9" Fill="#00FFFF" Margin="1,0"/>
+                        <Rectangle Width="5" Height="9" Fill="#FFA500" Margin="0,0,10,0"/>
+                        <TextBlock Text="Points of interest (colour = category)" Foreground="{StaticResource TextMuted}" FontSize="12"/>
+                    </StackPanel>
+
+                    <TextBlock Text="STATUS" Style="{StaticResource SectionLabel}"/>
+                </StackPanel>
+
+                <Border Background="#0F172A" CornerRadius="8" Padding="10" BorderBrush="{StaticResource PanelBorder}" BorderThickness="1">
+                    <ScrollViewer x:Name="logScroll" VerticalScrollBarVisibility="Auto">
+                        <TextBlock x:Name="logText" Foreground="#CBD5E1" FontFamily="Cascadia Mono, Consolas" FontSize="11.5" TextWrapping="Wrap"
+                                   Text="Open a .osm.xml map to start."/>
+                    </ScrollViewer>
+                </Border>
+            </DockPanel>
+        </Border>
+
+        <!-- Map -->
+        <wv2:WebView2 Grid.Column="1" x:Name="mapView"/>
+    </Grid>
+</Window>
